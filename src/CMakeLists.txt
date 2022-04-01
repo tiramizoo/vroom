@@ -6,6 +6,8 @@ add_library(vroom STATIC
     algorithms/local_search/operator.cpp
     algorithms/validation/check.cpp
     algorithms/validation/choose_ETA.cpp
+    algorithms/kruskal.cpp
+    algorithms/munkres.cpp
     problems/cvrp/operators/cross_exchange.cpp
     problems/cvrp/operators/intra_cross_exchange.cpp
     problems/cvrp/operators/intra_exchange.cpp
