@@ -24,7 +24,6 @@ add_library(vroom STATIC
     problems/cvrp/cvrp.cpp
     problems/tsp/heuristics/christofides.cpp
     problems/tsp/heuristics/local_search.cpp
-    problems/tsp/heuristics/christofides.cpp
     problems/tsp/tsp.cpp
     problems/vrptw/operators/cross_exchange.cpp
     problems/vrptw/operators/intra_cross_exchange.cpp
