@@ -97,10 +97,6 @@ public:
     }
   }
 
-  void push_back(Capacity c) {
-    elems.push_back(c);
-  };
-
   Capacity operator[](std::size_t i) const {
     return elems[i];
   };
