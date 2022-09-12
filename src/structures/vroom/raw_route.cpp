@@ -11,8 +11,8 @@ All rights reserved (see LICENSE).
 
 namespace vroom {
 
-RawRoute::RawRoute(const Input& input, Index i, unsigned amount_size)
-  : _zero(amount_size),
+RawRoute::RawRoute(const Input& input, Index i, const Amount& zero_amount)
+  : _zero(zero_amount),
     _fwd_peaks(2, _zero),
     _bwd_peaks(2, _zero),
     _delivery_margin(input.vehicles[i].capacity),
