@@ -495,10 +495,10 @@ void parse(Input& input, const std::string& input_str, bool geometry) {
   bool first_vehicle_has_capacity = (first_vehicle.HasMember("capacity") and
                                      first_vehicle["capacity"].IsArray() and
                                      first_vehicle["capacity"].Size() > 0);
-  const unsigned amount_size =
-    first_vehicle_has_capacity ? first_vehicle["capacity"].Size() : 0;
+  const auto zero_amount = Amount(std::make_unique<AmountDims>(
+    first_vehicle_has_capacity ? first_vehicle["capacity"].Size() : 0));
 
-  input.set_amount_size(amount_size);
+  input.set_zero_amount(zero_amount);
   input.set_geometry(geometry);
 
   // Add all vehicles.
