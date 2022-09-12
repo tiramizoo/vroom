@@ -10,194 +10,241 @@ All rights reserved (see LICENSE).
 
 */
 
-#include <cassert>
+#include <algorithm>
+#include <memory>
 #include <vector>
+#include <cassert>
 
 #include "structures/typedefs.h"
 
 namespace vroom {
 
-template <typename E> class AmountExpression {
-public:
-  Capacity operator[](size_t i) const {
-    return static_cast<const E&>(*this)[i];
-  };
-  std::size_t size() const {
-    return static_cast<const E&>(*this).size();
-  };
-  bool empty() const {
-    return size() == 0;
-  };
+class AmountImpl
+{
+    public:
+        virtual ~AmountImpl() = default;
+
+        virtual auto clone() const -> AmountImpl * = 0;
+
+        virtual auto is_less(AmountImpl const & other) const -> bool = 0;
+        virtual auto is_equal(AmountImpl const & other) const -> bool = 0;
+        virtual auto add(AmountImpl const & other) -> void = 0;
+        virtual auto sub(AmountImpl const & other) -> void = 0;
+        virtual auto update_to_maxed(AmountImpl const & other) -> void = 0;
+        virtual auto set_zero() -> void = 0;
 };
 
-// Lexicographical comparison, useful for situations where a total
-// order is required.
-template <typename E1, typename E2>
-bool operator<<(const AmountExpression<E1>& lhs,
-                const AmountExpression<E2>& rhs) {
-  assert(lhs.size() == rhs.size());
-  if (lhs.empty()) {
-    return false;
-  }
-  auto last_rank = lhs.size() - 1;
-  for (std::size_t i = 0; i < last_rank; ++i) {
-    if (lhs[i] < rhs[i]) {
-      return true;
-    }
-    if (lhs[i] > rhs[i]) {
-      return false;
-    }
-  }
-  return lhs[last_rank] < rhs[last_rank];
-}
+class AmountDims : public AmountImpl
+{
+    public:
+        AmountDims() = default;
+        AmountDims(std::size_t size)
+          : elems(size, 0)
+        {
+        }
+        AmountDims(std::vector<Capacity> elems)
+          : elems(elems)
+        {
+        }
 
-template <typename E1, typename E2>
-bool operator<=(const AmountExpression<E1>& lhs,
-                const AmountExpression<E2>& rhs) {
-  bool is_inf = true;
-  assert(lhs.size() == rhs.size());
-  for (std::size_t i = 0; i < lhs.size(); ++i) {
-    if (lhs[i] > rhs[i]) {
-      is_inf = false;
-      break;
-    }
-  }
+        auto clone() const -> AmountDims * override
+        {
+            return new AmountDims(*this);
+        }
 
-  return is_inf;
-}
+        auto is_less(AmountImpl const & other) const -> bool override
+        {
+            assert(elems.size() == static_cast<AmountDims const &>(other).elems.size());
 
-template <typename E1, typename E2>
-bool operator==(const AmountExpression<E1>& lhs,
-                const AmountExpression<E2>& rhs) {
-  bool is_equal = true;
-  assert(lhs.size() == rhs.size());
-  for (std::size_t i = 0; i < lhs.size(); ++i) {
-    if (lhs[i] != rhs[i]) {
-      is_equal = false;
-      break;
-    }
-  }
+            if (elems.empty())
+            {
+                return false;
+            }
 
-  return is_equal;
-}
+            auto last_rank = elems.size() - 1;
+            for (std::size_t i = 0; i < last_rank; ++i)
+            {
+                if (elems[i] < static_cast<AmountDims const &>(other).elems[i])
+                {
+                    return true;
+                }
+                if (elems[i] > static_cast<AmountDims const &>(other).elems[i])
+                {
+                    return false;
+                }
+            }
+            return elems[last_rank] < static_cast<AmountDims const &>(other).elems[last_rank];
+        }
 
-class Amount : public AmountExpression<Amount> {
+        auto is_equal(AmountImpl const & other) const -> bool override
+        {
+            assert(elems.size() == static_cast<AmountDims const &>(other).elems.size());
 
-  std::vector<Capacity> elems;
+            for (std::size_t i = 0; i < elems.size(); ++i)
+            {
+                if (elems[i] != static_cast<AmountDims const &>(other).elems[i])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
 
-public:
-  Amount() = default;
+        auto add(AmountImpl const & other) -> void override
+        {
+            assert(elems.size() == static_cast<AmountDims const &>(other).elems.size());
 
-  Amount(std::size_t size) : elems(size, 0){};
+            for (std::size_t i = 0; i < elems.size(); ++i)
+            {
+                elems[i] += static_cast<AmountDims const &>(other).elems[i];
+            }
+        }
 
-  template <typename E> Amount(const AmountExpression<E>& u) {
-    elems.resize(u.size());
-    for (std::size_t i = 0; i < u.size(); ++i) {
-      elems[i] = u[i];
-    }
-  }
+        auto sub(AmountImpl const & other) -> void override
+        {
+            assert(elems.size() == static_cast<AmountDims const &>(other).elems.size());
 
-  Capacity operator[](std::size_t i) const {
-    return elems[i];
-  };
+            for (std::size_t i = 0; i < elems.size(); ++i)
+            {
+                elems[i] -= static_cast<AmountDims const &>(other).elems[i];
+            }
+        }
 
-  Capacity& operator[](std::size_t i) {
-    return elems[i];
-  };
+        auto update_to_maxed(AmountImpl const & other) -> void override
+        {
+            assert(elems.size() == static_cast<AmountDims const &>(other).elems.size());
 
-  std::size_t size() const {
-    return elems.size();
-  };
+            for (std::size_t i = 0; i < elems.size(); ++i)
+            {
+                elems[i] = std::max(elems[i], static_cast<AmountDims const &>(other).elems[i]);
+            }
+        }
 
-  Amount& operator+=(const Amount& rhs) {
-    assert(this->size() == rhs.size());
-    for (std::size_t i = 0; i < this->size(); ++i) {
-      (*this)[i] += rhs[i];
-    }
-    return *this;
-  }
+        auto set_zero() -> void override
+        {
+            std::fill(elems.begin(), elems.end(), 0);
+        }
 
-  Amount& operator-=(const Amount& rhs) {
-    assert(this->size() == rhs.size());
-    for (std::size_t i = 0; i < this->size(); ++i) {
-      (*this)[i] -= rhs[i];
-    }
-    return *this;
-  }
-
-#if USE_PYTHON_BINDINGS
-  Capacity* get_data() {
-    return elems.data();
-  };
-#endif
-
-  template <class AmountExpression>
-  Amount& operator+=(const AmountExpression& rhs) {
-    assert(this->size() == rhs.size());
-    for (std::size_t i = 0; i < this->size(); ++i) {
-      (*this)[i] += rhs[i];
-    }
-    return *this;
-  }
-
-  template <class AmountExpression>
-  Amount& operator-=(const AmountExpression& rhs) {
-    assert(this->size() == rhs.size());
-    for (std::size_t i = 0; i < this->size(); ++i) {
-      (*this)[i] -= rhs[i];
-    }
-    return *this;
-  }
+    private:
+        std::vector<Capacity> elems;
 };
 
-template <typename E1, typename E2>
-class AmountSum : public AmountExpression<AmountSum<E1, E2>> {
-  const E1& lhs;
-  const E2& rhs;
+class AmountEmpty : public AmountImpl
+{
+    public:
+        AmountEmpty() = default;
 
-public:
-  AmountSum(const E1& a, const E2& b) : lhs(a), rhs(b) {
-    assert(a.size() == b.size());
-  };
+        auto clone() const -> AmountEmpty * override
+        {
+            return new AmountEmpty();
+        }
 
-  Capacity operator[](std::size_t i) const {
-    return lhs[i] + rhs[i];
-  };
+        auto is_less(AmountImpl const & /* other */) const -> bool override
+        {
+            return false;
+        }
 
-  std::size_t size() const {
-    return lhs.size();
-  };
+        auto is_equal(AmountImpl const & /* other */) const -> bool override
+        {
+            return true;
+        }
+
+        auto add(AmountImpl const & /* other */) -> void override
+        {
+        }
+
+        auto sub(AmountImpl const & /* other */) -> void override
+        {
+        }
+
+        auto update_to_maxed(AmountImpl const & /* other */) -> void override
+        {
+        }
+
+        auto set_zero() -> void override
+        {
+        }
 };
 
-template <typename E1, typename E2>
-auto operator+(const AmountExpression<E1>& u, const AmountExpression<E2>& v)
-  -> AmountSum<AmountExpression<E1>, AmountExpression<E2>> {
-  return {u, v};
+class Amount
+{
+    public:
+        Amount()
+          : m_impl(std::make_unique<AmountEmpty>())
+        {
+        }
+
+        Amount(std::unique_ptr<AmountImpl> impl)
+          : m_impl(std::move(impl))
+        {
+        }
+
+        Amount(Amount const & other)
+          : m_impl(other.m_impl->clone())
+        {
+        }
+
+        Amount & operator=(Amount const & other)
+        {
+            m_impl.reset(other.m_impl->clone());
+            return *this;
+        }
+
+        Amount & operator+=(Amount const & other)
+        {
+            m_impl->add(*other.m_impl);
+            return *this;
+        }
+
+        Amount & operator-=(Amount const & other)
+        {
+            m_impl->sub(*other.m_impl);
+            return *this;
+        }
+
+        auto operator==(Amount const & other) const -> bool
+        {
+            return m_impl->is_equal(*other.m_impl);
+        }
+
+        auto operator<=(Amount const & other) const -> bool
+        {
+            return m_impl->is_less(*other.m_impl) || m_impl->is_equal(*other.m_impl);
+        }
+
+        auto operator<<(Amount const & other) const -> bool
+        {
+            return m_impl->is_less(*other.m_impl);
+        }
+
+        auto update_to_maxed(Amount const & other) -> void
+        {
+            m_impl->update_to_maxed(*other.m_impl);
+        }
+
+        Amount get_zero() const
+        {
+            auto copy(*this);
+            copy.m_impl->set_zero();
+            return copy;
+        }
+
+    private:
+        std::unique_ptr<AmountImpl> m_impl;
+};
+
+inline Amount operator+(Amount const & lhs, Amount const & rhs)
+{
+    auto result(lhs);
+    result += rhs;
+    return result;
 }
 
-template <typename E1, typename E2>
-class AmountDiff : public AmountExpression<AmountDiff<E1, E2>> {
-  const E1& lhs;
-  const E2& rhs;
-
-public:
-  AmountDiff(const E1& a, const E2& b) : lhs(a), rhs(b) {
-    assert(a.size() == b.size());
-  };
-
-  Capacity operator[](std::size_t i) const {
-    return lhs[i] - rhs[i];
-  };
-
-  std::size_t size() const {
-    return lhs.size();
-  };
-};
-
-template <typename E1, typename E2>
-auto operator-(const AmountExpression<E1>& lhs, const AmountExpression<E2>& rhs)
-  -> AmountDiff<AmountExpression<E1>, AmountExpression<E2>> {
-  return {lhs, rhs};
+inline Amount operator-(Amount const & lhs, Amount const & rhs)
+{
+    auto result(lhs);
+    result -= rhs;
+    return result;
 }
 
 } // namespace vroom

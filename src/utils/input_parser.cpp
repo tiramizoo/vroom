@@ -59,18 +59,18 @@ inline Amount get_amount(const rapidjson::Value& object,
       throw InputException("Invalid " + std::string(key) + " array.");
     }
 
-    if (object[key].Size() != size) {
-      throw InputException("Inconsistent " + std::string(key) +
-                           " length: " + std::to_string(object[key].Size()) +
-                           " and " + std::to_string(size) + '.');
-    }
+    // if (object[key].Size() != amount.size()) {
+    //   throw InputException("Inconsistent " + std::string(key) +
+    //                        " length: " + std::to_string(object[key].Size()) +
+    //                        " and " + std::to_string(amount.size()) + '.');
+    // }
 
-    for (rapidjson::SizeType i = 0; i < object[key].Size(); ++i) {
-      if (!object[key][i].IsUint()) {
-        throw InputException("Invalid " + std::string(key) + " value.");
-      }
-      amount[i] = object[key][i].GetUint();
-    }
+    // for (rapidjson::SizeType i = 0; i < object[key].Size(); ++i) {
+    //   if (!object[key][i].IsUint()) {
+    //     throw InputException("Invalid " + std::string(key) + " value.");
+    //   }
+    //   amount[i] = object[key][i].GetUint();
+    // }
   }
 
   return amount;

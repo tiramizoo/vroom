@@ -43,7 +43,7 @@ struct Vehicle {
     const std::optional<Location>& start,
     const std::optional<Location>& end,
     const std::string& profile = DEFAULT_PROFILE,
-    const Amount& capacity = Amount(0),
+    const Amount& capacity = Amount(),
     const Skills& skills = Skills(),
     const TimeWindow& tw = TimeWindow(),
     const std::vector<Break>& breaks = std::vector<Break>(),

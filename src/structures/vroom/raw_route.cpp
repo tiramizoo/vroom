@@ -117,9 +117,7 @@ void RawRoute::update_amounts(const Input& input) {
   _fwd_peaks[0] = peak;
   for (std::size_t s = 1; s < _fwd_peaks.size(); ++s) {
     // Handle max component-wise.
-    for (std::size_t r = 0; r < _zero.size(); ++r) {
-      peak[r] = std::max(peak[r], _current_loads[s][r]);
-    }
+    peak.update_to_maxed(_current_loads[s]);
     _fwd_peaks[s] = peak;
   }
 
@@ -128,9 +126,7 @@ void RawRoute::update_amounts(const Input& input) {
   for (std::size_t s = 1; s < _bwd_peaks.size(); ++s) {
     auto bwd_s = _bwd_peaks.size() - s - 1;
     // Handle max component-wise.
-    for (std::size_t r = 0; r < _zero.size(); ++r) {
-      peak[r] = std::max(peak[r], _current_loads[bwd_s][r]);
-    }
+    peak.update_to_maxed(_current_loads[bwd_s]);
     _bwd_peaks[bwd_s] = peak;
   }
 
@@ -141,10 +137,8 @@ void RawRoute::update_amounts(const Input& input) {
     assert(!_fwd_pickups.empty());
     const auto& pickups_sum = _fwd_pickups.back();
 
-    for (unsigned i = 0; i < _zero.size(); ++i) {
-      _delivery_margin[i] = capacity[i] - _current_loads[0][i];
-      _pickup_margin[i] = capacity[i] - pickups_sum[i];
-    }
+    _delivery_margin = capacity - _current_loads[0];
+    _pickup_margin = capacity - pickups_sum;
   }
 }
 
