@@ -561,70 +561,70 @@ void Input::set_vehicles_costs() {
 }
 
 void Input::set_vehicles_max_tasks() {
-  if (_has_jobs and !_has_shipments and _amount_size > 0) {
-    // For job-only instances where capacity restrictions apply:
-    // compute an upper bound of the number of jobs for each vehicle
-    // based on pickups load and delivery loads. This requires sorting
-    // jobs and pickup/delivery values across all amount components.
-    struct JobAmount {
-      Index rank;
-      Capacity amount;
+  // if (_has_jobs and !_has_shipments and _zero.size() > 0) {
+  //   // For job-only instances where capacity restrictions apply:
+  //   // compute an upper bound of the number of jobs for each vehicle
+  //   // based on pickups load and delivery loads. This requires sorting
+  //   // jobs and pickup/delivery values across all amount components.
+  //   struct JobAmount {
+  //     Index rank;
+  //     Capacity amount;
 
-      bool operator<(const JobAmount& rhs) {
-        return this->amount < rhs.amount;
-      }
-    };
+  //     bool operator<(const JobAmount& rhs) {
+  //       return this->amount < rhs.amount;
+  //     }
+  //   };
 
-    std::vector<std::vector<JobAmount>>
-      job_pickups_per_component(_amount_size,
-                                std::vector<JobAmount>(jobs.size()));
-    std::vector<std::vector<JobAmount>>
-      job_deliveries_per_component(_amount_size,
-                                   std::vector<JobAmount>(jobs.size()));
-    for (std::size_t i = 0; i < _amount_size; ++i) {
-      for (Index j = 0; j < jobs.size(); ++j) {
-        job_pickups_per_component[i][j] = JobAmount({j, jobs[j].pickup[i]});
-        job_deliveries_per_component[i][j] =
-          JobAmount({j, jobs[j].delivery[i]});
-      }
+  //   std::vector<std::vector<JobAmount>>
+  //     job_pickups_per_component(_amount_size,
+  //                               std::vector<JobAmount>(jobs.size()));
+  //   std::vector<std::vector<JobAmount>>
+  //     job_deliveries_per_component(_amount_size,
+  //                                  std::vector<JobAmount>(jobs.size()));
+  //   for (std::size_t i = 0; i < _amount_size; ++i) {
+  //     for (Index j = 0; j < jobs.size(); ++j) {
+  //       job_pickups_per_component[i][j] = JobAmount({j, jobs[j].pickup[i]});
+  //       job_deliveries_per_component[i][j] =
+  //         JobAmount({j, jobs[j].delivery[i]});
+  //     }
 
-      std::sort(job_pickups_per_component[i].begin(),
-                job_pickups_per_component[i].end());
+  //     std::sort(job_pickups_per_component[i].begin(),
+  //               job_pickups_per_component[i].end());
 
-      std::sort(job_deliveries_per_component[i].begin(),
-                job_deliveries_per_component[i].end());
-    }
+  //     std::sort(job_deliveries_per_component[i].begin(),
+  //               job_deliveries_per_component[i].end());
+  //   }
 
-    for (Index v = 0; v < vehicles.size(); ++v) {
-      std::size_t max_tasks = jobs.size();
+  //   for (Index v = 0; v < vehicles.size(); ++v) {
+  //     std::size_t max_tasks = jobs.size();
 
-      for (std::size_t i = 0; i < _amount_size; ++i) {
-        Capacity pickup_sum = 0;
-        Capacity delivery_sum = 0;
-        std::size_t doable_pickups = 0;
-        std::size_t doable_deliveries = 0;
+  //     for (std::size_t i = 0; i < _amount_size; ++i) {
+  //       Capacity pickup_sum = 0;
+  //       Capacity delivery_sum = 0;
+  //       std::size_t doable_pickups = 0;
+  //       std::size_t doable_deliveries = 0;
 
-        for (std::size_t j = 0; j < jobs.size(); ++j) {
-          if (vehicle_ok_with_job(v, job_pickups_per_component[i][j].rank) and
-              pickup_sum <= vehicles[v].capacity[i]) {
-            pickup_sum += job_pickups_per_component[i][j].amount;
-            ++doable_pickups;
-          }
-          if (vehicle_ok_with_job(v,
-                                  job_deliveries_per_component[i][j].rank) and
-              delivery_sum <= vehicles[v].capacity[i]) {
-            delivery_sum += job_deliveries_per_component[i][j].amount;
-            ++doable_deliveries;
-          }
-        }
+  //       for (std::size_t j = 0; j < jobs.size(); ++j) {
+  //         if (vehicle_ok_with_job(v, job_pickups_per_component[i][j].rank) and
+  //             pickup_sum <= vehicles[v].capacity[i]) {
+  //           pickup_sum += job_pickups_per_component[i][j].amount;
+  //           ++doable_pickups;
+  //         }
+  //         if (vehicle_ok_with_job(v,
+  //                                 job_deliveries_per_component[i][j].rank) and
+  //             delivery_sum <= vehicles[v].capacity[i]) {
+  //           delivery_sum += job_deliveries_per_component[i][j].amount;
+  //           ++doable_deliveries;
+  //         }
+  //       }
 
-        const auto doable_tasks = std::min(doable_pickups, doable_deliveries);
-        max_tasks = std::min(max_tasks, doable_tasks);
-      }
+  //       const auto doable_tasks = std::min(doable_pickups, doable_deliveries);
+  //       max_tasks = std::min(max_tasks, doable_tasks);
+  //     }
 
-      vehicles[v].max_tasks = std::min(vehicles[v].max_tasks, max_tasks);
-    }
-  }
+  //     vehicles[v].max_tasks = std::min(vehicles[v].max_tasks, max_tasks);
+  //   }
+  // }
 
   if (_has_TW) {
     // Compute an upper bound of the number of tasks for each vehicle
