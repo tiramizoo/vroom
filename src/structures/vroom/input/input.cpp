@@ -9,6 +9,7 @@ All rights reserved (see LICENSE).
 
 #include <mutex>
 #include <thread>
+#include <iostream>
 
 #if USE_LIBOSRM
 #include "osrm/exception.hpp"
@@ -45,7 +46,8 @@ Input::Input(const io::Servers& servers, ROUTER router)
     _amount_size(0),
     _zero(0),
     _servers(servers),
-    _router(router) {
+    _router(router),
+    log_message([](std::string const & message){ std::cout << message << '\n'; }) {
 }
 
 void Input::set_amount_size(unsigned amount_size) {

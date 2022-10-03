@@ -9,6 +9,7 @@ All rights reserved (see LICENSE).
 
 #include <mutex>
 #include <thread>
+#include <sstream>
 
 #include "algorithms/heuristics/heuristics.h"
 #include "algorithms/local_search/local_search.h"
@@ -192,7 +193,13 @@ Solution VRPTW::solve(unsigned exploration_level,
         search_time = timeout.value() / param_ranks.size();
       }
 
+      auto sstr = std::ostringstream();
+      sstr << std::this_thread::get_id();
+
+      _input.log_message("Thread " + sstr.str() + " starting with " + std::to_string(search_time ? *search_time : -1) + " timeout");
+
       for (auto rank : param_ranks) {
+        _input.log_message("Thread " + sstr.str() + " starting heuristic for rank " + std::to_string(rank));
         auto& p = parameters[rank];
         switch (p.heuristic) {
         case HEURISTIC::INIT_ROUTES:
@@ -210,6 +217,7 @@ Solution VRPTW::solve(unsigned exploration_level,
           break;
         }
 
+        _input.log_message("Thread " + sstr.str() + " starting local search for rank " + std::to_string(rank));
         // Local search phase.
         vrptw::LocalSearch ls(_input,
                               tw_solutions[rank],
@@ -222,7 +230,10 @@ Solution VRPTW::solve(unsigned exploration_level,
 #ifdef LOG_LS_OPERATORS
         ls_stats[rank] = ls.get_stats();
 #endif
+        _input.log_message("Thread " + sstr.str() + " done local search for rank " + std::to_string(rank));
       }
+
+      _input.log_message("Thread " + sstr.str() + " finishing");
     } catch (...) {
       ep_m.lock();
       ep = std::current_exception();

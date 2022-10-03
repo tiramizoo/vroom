@@ -13,6 +13,7 @@ All rights reserved (see LICENSE).
 #include <chrono>
 #include <memory>
 #include <unordered_map>
+#include <functional>
 
 #include "routing/wrapper.h"
 #include "structures/generic/matrix.h"
@@ -82,6 +83,7 @@ private:
   void add_routing_wrapper(const std::string& profile);
 
 public:
+  std::function<void(std::string const &)> log_message;
   std::vector<Job> jobs;
   std::vector<Vehicle> vehicles;
 
