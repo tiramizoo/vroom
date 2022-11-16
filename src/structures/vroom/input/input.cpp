@@ -45,7 +45,8 @@ Input::Input(const io::Servers& servers, ROUTER router)
     _amount_size(0),
     _zero(0),
     _servers(servers),
-    _router(router) {
+    _router(router),
+    log_function([](const std::string&){}) {
 }
 
 void Input::set_amount_size(unsigned amount_size) {
@@ -379,6 +380,10 @@ void Input::set_costs_matrix(const std::string& profile, Matrix<Cost>&& m) {
     throw InputException("Empty costs matrix for " + profile + " profile.");
   }
   _costs_matrices.insert_or_assign(profile, m);
+}
+
+void Input::set_log_function(std::function<void (const std::string&)> log_fn) {
+  log_function = log_fn;
 }
 
 bool Input::is_used_several_times(const Location& location) const {

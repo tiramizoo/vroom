@@ -13,6 +13,7 @@ All rights reserved (see LICENSE).
 #include <chrono>
 #include <memory>
 #include <unordered_map>
+#include <functional>
 
 #include "routing/wrapper.h"
 #include "structures/generic/matrix.h"
@@ -90,6 +91,8 @@ public:
   std::unordered_map<Id, Index> pickup_id_to_rank;
   std::unordered_map<Id, Index> delivery_id_to_rank;
 
+  std::function<void (const std::string&)> log_function;
+
   Input(const io::Servers& servers = {}, ROUTER router = ROUTER::OSRM);
 
   void set_amount_size(unsigned amount_size);
@@ -104,6 +107,8 @@ public:
 
   void set_durations_matrix(const std::string& profile, Matrix<Duration>&& m);
   void set_costs_matrix(const std::string& profile, Matrix<Cost>&& m);
+
+  void set_log_function(std::function<void (const std::string&)> log_fn);
 
   const Amount& zero_amount() const {
     return _zero;
