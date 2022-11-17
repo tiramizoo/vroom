@@ -193,6 +193,7 @@ Solution VRPTW::solve(unsigned exploration_level,
       }
 
       for (auto rank : param_ranks) {
+        _input.log_function("Running heuristic for rank " + std::to_string(rank));
         auto& p = parameters[rank];
         switch (p.heuristic) {
         case HEURISTIC::INIT_ROUTES:
@@ -210,6 +211,7 @@ Solution VRPTW::solve(unsigned exploration_level,
           break;
         }
 
+        _input.log_function("Running local search for rank " + std::to_string(rank));
         // Local search phase.
         vrptw::LocalSearch ls(_input,
                               tw_solutions[rank],
@@ -222,6 +224,7 @@ Solution VRPTW::solve(unsigned exploration_level,
 #ifdef LOG_LS_OPERATORS
         ls_stats[rank] = ls.get_stats();
 #endif
+        _input.log_function("Done for rank " + std::to_string(rank));
       }
     } catch (...) {
       ep_m.lock();
