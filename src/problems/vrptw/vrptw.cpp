@@ -185,6 +185,7 @@ Solution VRPTW::solve(unsigned exploration_level,
   std::mutex ep_m;
 
   auto run_solve = [&](const std::vector<std::size_t>& param_ranks) {
+    _input.log_function("Starting thread for ranks " + std::to_string(param_ranks.front()) + ".." + std::to_string(param_ranks.back()));
     try {
       // Decide time allocated for each search.
       Timeout search_time;
@@ -227,10 +228,12 @@ Solution VRPTW::solve(unsigned exploration_level,
         _input.log_function("Done for rank " + std::to_string(rank));
       }
     } catch (...) {
+      _input.log_function("Thread for ranks " + std::to_string(param_ranks.front()) + ".." + std::to_string(param_ranks.back()) + " caught exception");
       ep_m.lock();
       ep = std::current_exception();
       ep_m.unlock();
     }
+    _input.log_function("Finishing thread for ranks " + std::to_string(param_ranks.front()) + ".." + std::to_string(param_ranks.back()));
   };
 
   std::vector<std::thread> solving_threads;
