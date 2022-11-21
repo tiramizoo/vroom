@@ -202,8 +202,18 @@ Solution CVRP::solve(unsigned exploration_level,
   std::mutex ep_m;
 
   auto run_solve = [&](const std::vector<std::size_t>& param_ranks) {
+    auto const ranks_str = [](auto const & v){
+      std::string result;
+      for (auto it = v.begin(); it != v.end(); ++it) {
+        if (it != v.begin()) {
+          result += ", ";
+        }
+        result += std::to_string(*it);
+      }
+      return result;
+    }(param_ranks);
+    _input.log_function("Starting thread for ranks [" + ranks_str + "]");
     try {
-      _input.log_function("Starting thread for ranks " + std::to_string(param_ranks.front()) + ".." + std::to_string(param_ranks.back()));
       // Decide time allocated for each search.
       Timeout search_time;
       if (timeout.has_value()) {
@@ -246,12 +256,12 @@ Solution CVRP::solve(unsigned exploration_level,
         _input.log_function("Done for rank " + std::to_string(rank));
       }
     } catch (...) {
-      _input.log_function("Thread for ranks " + std::to_string(param_ranks.front()) + ".." + std::to_string(param_ranks.back()) + " caught exception");
+      _input.log_function("Thread for ranks [" + ranks_str + "] caught exception");
       ep_m.lock();
       ep = std::current_exception();
       ep_m.unlock();
     }
-    _input.log_function("Finishing thread for ranks " + std::to_string(param_ranks.front()) + ".." + std::to_string(param_ranks.back()));
+    _input.log_function("Finishing thread for ranks [" + ranks_str + "]");
   };
 
   std::vector<std::thread> solving_threads;
