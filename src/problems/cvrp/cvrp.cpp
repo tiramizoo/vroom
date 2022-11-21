@@ -203,6 +203,7 @@ Solution CVRP::solve(unsigned exploration_level,
 
   auto run_solve = [&](const std::vector<std::size_t>& param_ranks) {
     try {
+      _input.log_function("Starting thread for ranks " + std::to_string(param_ranks.front()) + ".." + std::to_string(param_ranks.back()));
       // Decide time allocated for each search.
       Timeout search_time;
       if (timeout.has_value()) {
@@ -210,6 +211,7 @@ Solution CVRP::solve(unsigned exploration_level,
       }
 
       for (auto rank : param_ranks) {
+        _input.log_function("Running heuristic for rank " + std::to_string(rank));
         auto& p = parameters[rank];
 
         switch (p.heuristic) {
@@ -228,6 +230,7 @@ Solution CVRP::solve(unsigned exploration_level,
           break;
         }
 
+        _input.log_function("Running local search for rank " + std::to_string(rank));
         // Local search phase.
         cvrp::LocalSearch ls(_input,
                              solutions[rank],
@@ -240,12 +243,15 @@ Solution CVRP::solve(unsigned exploration_level,
 #ifdef LOG_LS_OPERATORS
         ls_stats[rank] = ls.get_stats();
 #endif
+        _input.log_function("Done for rank " + std::to_string(rank));
       }
     } catch (...) {
+      _input.log_function("Thread for ranks " + std::to_string(param_ranks.front()) + ".." + std::to_string(param_ranks.back()) + " caught exception");
       ep_m.lock();
       ep = std::current_exception();
       ep_m.unlock();
     }
+    _input.log_function("Finishing thread for ranks " + std::to_string(param_ranks.front()) + ".." + std::to_string(param_ranks.back()));
   };
 
   std::vector<std::thread> solving_threads;
