@@ -21,6 +21,7 @@ add_library(vroom STATIC
     problems/cvrp/operators/relocate.cpp
     problems/cvrp/operators/reverse_two_opt.cpp
     problems/cvrp/operators/route_exchange.cpp
+    problems/cvrp/operators/route_split.cpp
     problems/cvrp/operators/swap_star.cpp
     problems/cvrp/operators/two_opt.cpp
     problems/cvrp/operators/unassigned_exchange.cpp
@@ -41,6 +42,7 @@ add_library(vroom STATIC
     problems/vrptw/operators/relocate.cpp
     problems/vrptw/operators/reverse_two_opt.cpp
     problems/vrptw/operators/route_exchange.cpp
+    problems/vrptw/operators/route_split.cpp
     problems/vrptw/operators/swap_star.cpp
     problems/vrptw/operators/two_opt.cpp
     problems/vrptw/operators/unassigned_exchange.cpp
