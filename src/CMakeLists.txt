@@ -81,4 +81,6 @@ add_library(vroom STATIC
 target_include_directories(vroom
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>)
 
+target_compile_definitions(vroom PRIVATE USE_LIBGLPK=true)
+
 target_link_libraries(vroom PUBLIC pthread ssl crypto glpk)
