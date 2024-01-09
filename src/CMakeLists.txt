@@ -78,6 +78,8 @@ add_library(vroom STATIC
     utils/output_json.cpp
     utils/version.cpp)
 
+target_compile_features(vroom PRIVATE cxx_std_20)
+
 target_include_directories(vroom
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>)
 
