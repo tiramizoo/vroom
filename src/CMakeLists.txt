@@ -4,6 +4,7 @@ add_library(vroom STATIC
     algorithms/heuristics/heuristics.cpp
     algorithms/local_search/local_search.cpp
     algorithms/local_search/operator.cpp
+    algorithms/local_search/top_insertions.cpp
     algorithms/validation/check.cpp
     algorithms/validation/choose_ETA.cpp
     algorithms/kruskal.cpp
@@ -18,11 +19,13 @@ add_library(vroom STATIC
     problems/cvrp/operators/mixed_exchange.cpp
     problems/cvrp/operators/or_opt.cpp
     problems/cvrp/operators/pd_shift.cpp
+    problems/cvrp/operators/priority_replace.cpp
     problems/cvrp/operators/relocate.cpp
     problems/cvrp/operators/reverse_two_opt.cpp
     problems/cvrp/operators/route_exchange.cpp
     problems/cvrp/operators/route_split.cpp
     problems/cvrp/operators/swap_star.cpp
+    problems/cvrp/operators/tsp_fix.cpp
     problems/cvrp/operators/two_opt.cpp
     problems/cvrp/operators/unassigned_exchange.cpp
     problems/cvrp/cvrp.cpp
@@ -39,11 +42,13 @@ add_library(vroom STATIC
     problems/vrptw/operators/mixed_exchange.cpp
     problems/vrptw/operators/or_opt.cpp
     problems/vrptw/operators/pd_shift.cpp
+    problems/vrptw/operators/priority_replace.cpp
     problems/vrptw/operators/relocate.cpp
     problems/vrptw/operators/reverse_two_opt.cpp
     problems/vrptw/operators/route_exchange.cpp
     problems/vrptw/operators/route_split.cpp
     problems/vrptw/operators/swap_star.cpp
+    problems/vrptw/operators/tsp_fix.cpp
     problems/vrptw/operators/two_opt.cpp
     problems/vrptw/operators/unassigned_exchange.cpp
     problems/vrptw/vrptw.cpp
@@ -63,6 +68,7 @@ add_library(vroom STATIC
     structures/vroom/solution/step.cpp
     structures/vroom/solution/summary.cpp
     structures/vroom/solution/violations.cpp
+    structures/vroom/bbox.cpp
     structures/vroom/break.cpp
     structures/vroom/cost_wrapper.cpp
     structures/vroom/job.cpp
@@ -74,6 +80,7 @@ add_library(vroom STATIC
     structures/vroom/vehicle.cpp
     structures/cl_args.cpp
     utils/exception.cpp
+    utils/helpers.cpp
     utils/input_parser.cpp
     utils/output_json.cpp
     utils/version.cpp)
